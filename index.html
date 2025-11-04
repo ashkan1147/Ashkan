@@ -1,0 +1,63 @@
+<!doctype html>
+<html lang="fa" dir="rtl">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>داشبورد فارسی کریپتو — قیمت، اخبار و شاخص</title>
+  <style>
+    :root{
+      --bg:#0f1724;--card:#0b1220;--accent:#00c2a8;--muted:#98a1b3;--glass:rgba(255,255,255,0.03);
+      font-family:"Vazirmatn","Noto Sans Arabic",system-ui,sans-serif;
+    }
+    html,body{height:100%;margin:0;background:#071021;color:#e6eef6;}
+    .container{max-width:1200px;margin:24px auto;padding:16px;}
+    h1{font-size:18px;margin:0;}
+    .card{background:#0b1220;border-radius:10px;padding:12px;margin-bottom:12px;}
+    table{width:100%;border-collapse:collapse;font-size:13px;}
+    th,td{padding:8px;text-align:right;border-bottom:1px solid rgba(255,255,255,0.05);}
+    th{color:#98a1b3;}
+    .price-up{color:#4aee9e;} .price-down{color:#ff758c;}
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>📊 داشبورد فارسی کریپتو</h1>
+    <p>قیمت لحظه‌ای، شاخص ترس و طمع، اخبار و توکن‌های برتر</p>
+    <div class="card">
+      <strong>قیمت‌ها</strong>
+      <table id="prices"><thead><tr><th>نام</th><th>قیمت</th><th>تغییر</th></tr></thead><tbody></tbody></table>
+    </div>
+    <div class="card">
+      <strong>شاخص ترس و طمع</strong>
+      <div id="fngValue">در حال بارگذاری...</div>
+    </div>
+    <div class="card">
+      <strong>اخبار کریپتو</strong>
+      <div id="news">در حال بارگذاری...</div>
+    </div>
+  </div>
+
+  <script>
+  async function loadPrices(){
+    const url='https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd&ids=bitcoin,ethereum,tether,binancecoin,ripple,solana&order=market_cap_desc&sparkline=false';
+    const res=await fetch(url);const data=await res.json();
+    const tbody=document.querySelector('#prices tbody');tbody.innerHTML='';
+    data.forEach(c=>{
+      const tr=document.createElement('tr');
+      tr.innerHTML=`<td>${c.name}</td><td>$${c.current_price}</td>
+      <td class="${c.price_change_percentage_24h>=0?'price-up':'price-down'}">${c.price_change_percentage_24h.toFixed(2)}%</td>`;
+      tbody.appendChild(tr);
+    });
+  }
+  async function loadFNG(){
+    const res=await fetch('https://api.alternative.me/fng/');const j=await res.json();
+    const d=j.data[0];document.querySelector('#fngValue').textContent=`${d.value} - ${d.value_classification}`;
+  }
+  async function loadNews(){
+    const res=await fetch('https://api.coingecko.com/api/v3/status_updates');const j=await res.json();
+    const news=j.status_updates.slice(0,5).map(n=>`<p>${n.description}</p>`).join('');
+    document.querySelector('#news').innerHTML=news;
+  }
+  loadPrices();loadFNG();loadNews();
+  </script>
+</body></html>
